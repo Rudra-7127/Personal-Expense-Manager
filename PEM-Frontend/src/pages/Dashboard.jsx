@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../lib/api'
 import { fmt, fmtDate, LABELS, getDueDays } from '../lib/utils'
+import { useTheme } from '../context/ThemeContext'
 import AddEntryModal from '../components/AddEntryModal'
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts'
 
 function getGreeting() {
@@ -35,13 +36,14 @@ function buildChartData(entries) {
 }
 
 const CustomTooltip = ({ active, payload, label }) => {
+  const { currency } = useTheme()
   if (!active || !payload?.length) return null
   return (
     <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 14px', fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>
       <div style={{ color: 'var(--muted)', marginBottom: 6, fontFamily: 'var(--font-body)' }}>{label}</div>
       {payload.map(p => (
         <div key={p.dataKey} style={{ color: p.color, marginBottom: 2 }}>
-          {p.dataKey === 'income' ? '↑ Income' : '↓ Expense'}: ₹{Number(p.value).toLocaleString('en-IN')}
+          {p.dataKey === 'income' ? '↑ Income' : '↓ Expense'}: {currency}{Number(p.value).toLocaleString('en-US')}
         </div>
       ))}
     </div>
@@ -50,6 +52,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const { currency } = useTheme()
   const [entries, setEntries] = useState([])
   const [udhar, setUdhar]     = useState([])
   const [showModal, setShowModal] = useState(false)
@@ -117,30 +120,30 @@ export default function Dashboard() {
       <div className="stat-grid fade-up fade-up-1">
         <div className="stat-card green">
           <div className="stat-label">Total {LABELS.income}</div>
-          <div className="stat-value" style={{ color: 'var(--green)' }}>₹{fmt(income)}</div>
+          <div className="stat-value" style={{ color: 'var(--green)' }}>{currency}{fmt(income)}</div>
           <div className="stat-sub">{entries.filter(e => e.type === 'income').length} entries</div>
         </div>
         <div className="stat-card red">
           <div className="stat-label">Total {LABELS.expense}</div>
-          <div className="stat-value" style={{ color: 'var(--red)' }}>₹{fmt(expense)}</div>
+          <div className="stat-value" style={{ color: 'var(--red)' }}>{currency}{fmt(expense)}</div>
           <div className="stat-sub">{entries.filter(e => e.type === 'expense').length} entries</div>
         </div>
         <div className={`stat-card ${balance >= 0 ? 'green' : 'red'} accent`}>
           <div className="stat-label">Net Balance</div>
           <div className="stat-value" style={{ color: balance >= 0 ? 'var(--green)' : 'var(--red)' }}>
-            {balance < 0 ? '−' : ''}₹{fmt(Math.abs(balance))}
+            {balance < 0 ? '−' : ''}{currency}{fmt(Math.abs(balance))}
           </div>
           <div className="stat-sub">Income − Expense ± Udhar</div>
         </div>
         <div className="stat-card blue">
           <div className="stat-label">{LABELS.gave}</div>
-          <div className="stat-value" style={{ color: 'var(--blue)' }}>₹{fmt(udharGaveRemaining)}</div>
-          <div className="stat-sub">Milva nu baki</div>
+          <div className="stat-value" style={{ color: 'var(--blue)' }}>{currency}{fmt(udharGaveRemaining)}</div>
+          <div className="stat-sub">Receivable</div>
         </div>
         <div className="stat-card yellow">
           <div className="stat-label">{LABELS.got}</div>
-          <div className="stat-value" style={{ color: 'var(--yellow)' }}>₹{fmt(udharGotRemaining)}</div>
-          <div className="stat-sub">Aapva nu baki</div>
+          <div className="stat-value" style={{ color: 'var(--yellow)' }}>{currency}{fmt(udharGotRemaining)}</div>
+          <div className="stat-sub">Payable</div>
         </div>
       </div>
 
@@ -155,14 +158,14 @@ export default function Dashboard() {
           </div>
           <div className="chart-wrap">
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={chartData} barGap={4} barCategoryGap="28%">
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e2d45" vertical={false} />
-                <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 12, fontFamily: 'DM Sans' }} axisLine={false} tickLine={false} />
-                <YAxis tickFormatter={v => `₹${v >= 1000 ? (v/1000).toFixed(0)+'k' : v}`} tick={{ fill: '#64748b', fontSize: 11, fontFamily: 'DM Mono' }} axisLine={false} tickLine={false} width={56} />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff06' }} />
-                <Bar dataKey="income"  fill="#22c55e" radius={[5, 5, 0, 0]} maxBarSize={36} />
-                <Bar dataKey="expense" fill="#ef4444" radius={[5, 5, 0, 0]} maxBarSize={36} />
-              </BarChart>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: 'var(--muted)', fontSize: 12, fontFamily: 'DM Sans' }} axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={v => `${currency}${v >= 1000 ? (v/1000).toFixed(0)+'k' : v}`} tick={{ fill: 'var(--muted)', fontSize: 11, fontFamily: 'DM Mono' }} axisLine={false} tickLine={false} width={56} />
+                <Tooltip content={<CustomTooltip />} />
+                <Line type="monotone" dataKey="income" stroke="var(--green)" strokeWidth={3} dot={{ r: 4, strokeWidth: 2, fill: 'var(--surface)' }} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="expense" stroke="var(--red)" strokeWidth={3} dot={{ r: 4, strokeWidth: 2, fill: 'var(--surface)' }} activeDot={{ r: 6 }} />
+              </LineChart>
             </ResponsiveContainer>
             <div style={{ display: 'flex', gap: 16, justifyContent: 'center', paddingBottom: 12, fontSize: '0.75rem', color: 'var(--muted)' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 10, height: 10, borderRadius: 3, background: 'var(--green)', display: 'inline-block' }} /> Income</span>
@@ -197,7 +200,7 @@ export default function Dashboard() {
                     <td><span style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>{e.category}</span></td>
                     <td style={{ textAlign: 'right' }}>
                       <span className="amount" style={{ color: e.type === 'expense' ? 'var(--red)' : 'var(--green)', fontWeight: 500 }}>
-                        {e.type === 'expense' ? '−' : '+'}₹{fmt(e.amount)}
+                        {e.type === 'expense' ? '−' : '+'}{currency}{fmt(e.amount)}
                       </span>
                     </td>
                   </tr>

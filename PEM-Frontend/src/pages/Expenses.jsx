@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import api from '../lib/api'
 import { fmt, fmtDate, LABELS } from '../lib/utils'
+import { useTheme } from '../context/ThemeContext'
 import AddEntryModal from '../components/AddEntryModal'
 import toast from 'react-hot-toast'
 
 export default function Expenses() {
+  const { currency } = useTheme()
   const [entries, setEntries] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [editEntry, setEditEntry] = useState(null)
@@ -52,12 +54,12 @@ export default function Expenses() {
       <div className="stat-grid fade-up fade-up-1" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
         <div className="stat-card red">
           <div className="stat-label">Total {LABELS.expense}</div>
-          <div className="stat-value" style={{ color: 'var(--red)' }}>₹{fmt(total)}</div>
+          <div className="stat-value" style={{ color: 'var(--red)' }}>{currency}{fmt(total)}</div>
           <div className="stat-sub">All time</div>
         </div>
         <div className="stat-card red">
           <div className="stat-label">This Month</div>
-          <div className="stat-value" style={{ color: 'var(--red)' }}>₹{fmt(thisMonth)}</div>
+          <div className="stat-value" style={{ color: 'var(--red)' }}>{currency}{fmt(thisMonth)}</div>
           <div className="stat-sub">{new Date().toLocaleString('en-IN', { month: 'long' })}</div>
         </div>
         <div className="stat-card">
@@ -91,7 +93,7 @@ export default function Expenses() {
                     </span>
                   </td>
                   <td style={{ textAlign: 'right' }}>
-                    <span className="amount" style={{ color: 'var(--red)', fontWeight: 500 }}>−₹{fmt(e.amount)}</span>
+                    <span className="amount" style={{ color: 'var(--red)', fontWeight: 500 }}>−{currency}{fmt(e.amount)}</span>
                   </td>
                   <td style={{ color: 'var(--muted)', fontSize: '0.8rem' }}>{e.notes || '—'}</td>
                   <td>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import api from '../lib/api'
 import { LABELS } from '../lib/utils'
+import { useTheme } from '../context/ThemeContext'
 import toast from 'react-hot-toast'
 
 
@@ -12,6 +13,7 @@ const parseApiError = (err) => {
 
 
 export default function AddUdharModal({ udhar = null, onClose, onSuccess }) {
+  const { currency } = useTheme()
   const isEdit = !!udhar
   const [type, setType] = useState(isEdit ? udhar.type : 'gave')
   const [form, setForm] = useState(isEdit ? {
@@ -49,10 +51,10 @@ export default function AddUdharModal({ udhar = null, onClose, onSuccess }) {
           notes:       payload.notes,
         }
         await api.put(`/udhar/${udhar.id}`, updatePayload)
-        toast.success('Udhar entry updated!')
+        toast.success('Debt entry updated!')
       } else {
         await api.post('/udhar/', payload)
-        toast.success('Udhar entry added!')
+        toast.success('Debt entry added!')
       }
       onSuccess(); onClose()
     } catch (err) {
@@ -63,7 +65,7 @@ export default function AddUdharModal({ udhar = null, onClose, onSuccess }) {
   return (
     <div className="overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
-        <div className="modal-title">{isEdit ? '✏️ Edit Udhar Entry' : 'Add Udhar Entry'}</div>
+        <div className="modal-title">{isEdit ? '✏️ Edit Debt Entry' : 'Add Debt Entry'}</div>
 
         <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
           {[
@@ -93,7 +95,7 @@ export default function AddUdharModal({ udhar = null, onClose, onSuccess }) {
           <input value={form.person_name} onChange={e => setForm({...form, person_name: e.target.value})} placeholder="Who gave / who took?" />
         </div>
         <div className="field">
-          <label>Amount (₹)</label>
+          <label>Amount ({currency})</label>
           <input type="number" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="0.00" min="1" />
         </div>
         <div className="field">

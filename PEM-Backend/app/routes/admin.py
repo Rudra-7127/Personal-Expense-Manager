@@ -58,15 +58,15 @@ def admin_dashboard(_=Depends(require_admin)):
             uid = u["user_id"]
             udhar_pending[uid] += u["amount"] - (u.get("paid_amount") or 0)
 
-    enriched_users = []
-    for u in all_users:
-        uid = u["id"]
-        enriched_users.append({
+    enriched_users = [
+        {
             **u,
-            "total_entries": entry_counts[uid],
-            "last_active":   last_active.get(uid, None),
-            "udhar_pending": round(udhar_pending[uid], 2),
-        })
+            "total_entries": entry_counts[u["id"]],
+            "last_active":   last_active.get(u["id"], None),
+            "udhar_pending": round(udhar_pending[u["id"]], 2),
+        }
+        for u in all_users
+    ]
 
     return {
         "total_users":         total_users,

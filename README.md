@@ -317,7 +317,7 @@ This project is open-source and available under the [MIT License](LICENSE).
 
 <div align="center">
 
-Made by **[Rudra J Rabadiya](https://github.com/Rudra-7127)**
+Made by **[Rudra J Rabadiya](https://github.com/RudraRabadiya)**
 
 [![Instagram](https://img.shields.io/badge/%40rudra.rabadiya.07-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/rudra.rabadiya.07/)
 

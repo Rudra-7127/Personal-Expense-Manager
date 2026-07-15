@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import api from '../../lib/api'
 import { fmt, fmtDate, LABELS } from '../../lib/utils'
+import { useTheme } from '../../context/ThemeContext'
 import { exportUserPDF } from '../../lib/exportPDF'
 import toast from 'react-hot-toast'
 
 export default function AdminUserDetail() {
+  const { currency } = useTheme()
   const { userId } = useParams()
   const navigate = useNavigate()
   const [data, setData]       = useState(null)
@@ -49,17 +51,17 @@ export default function AdminUserDetail() {
       <div style={{color:'var(--muted)',fontSize:'.88rem',marginBottom:20}}>{profile.email}</div>
 
       <div className="stat-grid">
-        <div className="stat-card"><div className="stat-label">Total {LABELS.income}</div><div className="stat-value" style={{color:'var(--green)'}}>₹{fmt(summary.total_income)}</div></div>
-        <div className="stat-card"><div className="stat-label">Total {LABELS.expense}</div><div className="stat-value" style={{color:'var(--red)'}}>₹{fmt(summary.total_expense)}</div></div>
-        <div className="stat-card"><div className="stat-label">Net Balance</div><div className="stat-value" style={{color:summary.net_balance>=0?'var(--green)':'var(--red)'}}>₹{fmt(Math.abs(summary.net_balance))}</div></div>
-        <div className="stat-card"><div className="stat-label">{LABELS.gave} (Baki)</div><div className="stat-value" style={{color:'var(--blue)'}}>₹{fmt(summary.udhar_gave_pending)}</div></div>
-        <div className="stat-card"><div className="stat-label">{LABELS.got} (Baki)</div><div className="stat-value" style={{color:'var(--yellow)'}}>₹{fmt(summary.udhar_got_pending)}</div></div>
+        <div className="stat-card"><div className="stat-label">Total {LABELS.income}</div><div className="stat-value" style={{color:'var(--green)'}}>{currency}{fmt(summary.total_income)}</div></div>
+        <div className="stat-card"><div className="stat-label">Total {LABELS.expense}</div><div className="stat-value" style={{color:'var(--red)'}}>{currency}{fmt(summary.total_expense)}</div></div>
+        <div className="stat-card"><div className="stat-label">Net Balance</div><div className="stat-value" style={{color:summary.net_balance>=0?'var(--green)':'var(--red)'}}>{currency}{fmt(Math.abs(summary.net_balance))}</div></div>
+        <div className="stat-card"><div className="stat-label">{LABELS.gave} (Pending)</div><div className="stat-value" style={{color:'var(--blue)'}}>{currency}{fmt(summary.udhar_gave_pending)}</div></div>
+        <div className="stat-card"><div className="stat-label">{LABELS.got} (Pending)</div><div className="stat-value" style={{color:'var(--yellow)'}}>{currency}{fmt(summary.udhar_got_pending)}</div></div>
       </div>
 
       <div style={{display:'flex',gap:8,marginBottom:16}}>
         {['entries','udhar'].map(t=>(
           <button key={t} className={`btn btn-sm ${tab===t?'btn-primary':'btn-secondary'}`} onClick={()=>setTab(t)}>
-            {t==='entries'?'💸 Entries':'🤝 Udhar'}
+            {t==='entries'?'💸 Entries':'🤝 Debt'}
           </button>
         ))}
       </div>
@@ -71,7 +73,7 @@ export default function AdminUserDetail() {
             <td><span className={`chip chip-${e.type}`}>{e.type==='expense'?LABELS.expense:LABELS.income}</span></td>
             <td>{e.description}</td>
             <td style={{color:'var(--muted)',fontSize:'.8rem'}}>{e.category}</td>
-            <td style={{color:e.type==='expense'?'var(--red)':'var(--green)',fontWeight:700}}>₹{fmt(e.amount)}</td>
+            <td style={{color:e.type==='expense'?'var(--red)':'var(--green)',fontWeight:700}}>{currency}{fmt(e.amount)}</td>
             <td style={{color:'var(--muted)',fontSize:'.8rem'}}>{e.notes||'-'}</td>
           </tr>)}
         </tbody></table> : <div className="empty">No entries for this user.</div>}
@@ -83,12 +85,12 @@ export default function AdminUserDetail() {
             <td>{fmtDate(u.date)}</td>
             <td><span className={`chip chip-${u.type}`}>{u.type==='gave'?LABELS.gave:LABELS.got}</span></td>
             <td style={{fontWeight:700}}>{u.person_name}</td>
-            <td>₹{fmt(u.amount)}</td>
-            <td style={{color:'var(--green)',fontWeight:700}}>₹{fmt(u.paid_amount||0)}</td>
-            <td style={{color:'var(--red)',fontWeight:700}}>₹{fmt(u.amount-(u.paid_amount||0))}</td>
+            <td>{currency}{fmt(u.amount)}</td>
+            <td style={{color:'var(--green)',fontWeight:700}}>{currency}{fmt(u.paid_amount||0)}</td>
+            <td style={{color:'var(--red)',fontWeight:700}}>{currency}{fmt(u.amount-(u.paid_amount||0))}</td>
             <td>{u.status==='paid'?<span className="chip chip-paid">✅ Paid</span>:u.status==='partial'?<span className="chip" style={{background:'#f9731622',color:'var(--accent)'}}>⏳ Partial</span>:<span className="chip chip-pending">⏳ Pending</span>}</td>
           </tr>)}
-        </tbody></table> : <div className="empty">No udhar entries.</div>}
+        </tbody></table> : <div className="empty">No debt entries.</div>}
       </div>}
     </div>
   )

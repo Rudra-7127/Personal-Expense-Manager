@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import api from '../lib/api'
 import { fmt, fmtDate, LABELS, getDueDays } from '../lib/utils'
+import { useTheme } from '../context/ThemeContext'
 import AddUdharModal from '../components/AddUdharModal'
 import PaymentModal from '../components/PaymentModal'
 import toast from 'react-hot-toast'
@@ -18,6 +19,7 @@ function DueBadge({ due_date, status }) {
 }
 
 export default function Udhar() {
+  const { currency } = useTheme()
   const [udhar, setUdhar]                 = useState([])
   const [showModal, setShowModal]         = useState(false)
   const [editUdhar, setEditUdhar]         = useState(null)
@@ -89,7 +91,7 @@ export default function Udhar() {
           <span style={{ fontSize: '1.4rem' }}>{overdueCount > 0 ? '🚨' : '⚠️'}</span>
           <div>
             <div style={{ fontWeight: 700, color: overdueCount > 0 ? 'var(--red)' : 'var(--yellow)', fontSize: '0.9rem' }}>
-              {overdueCount > 0 ? `${overdueCount} udhar ${overdueCount === 1 ? 'entry is' : 'entries are'} overdue!` : ''}
+              {overdueCount > 0 ? `${overdueCount} debt ${overdueCount === 1 ? 'entry is' : 'entries are'} overdue!` : ''}
               {dueTodayCount > 0 ? ` ${dueTodayCount} ${dueTodayCount === 1 ? 'entry' : 'entries'} due today.` : ''}
             </div>
             <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: 2 }}>
@@ -101,29 +103,29 @@ export default function Udhar() {
 
       <div className="page-header fade-up">
         <div>
-          <div className="page-title">Udhar Book</div>
+          <div className="page-title">Debt Book</div>
           <div className="page-subtitle">Track money lent and borrowed</div>
         </div>
-        <button className="btn btn-primary btn-sm" onClick={() => setShowModal(true)}>+ Add Udhar</button>
+        <button className="btn btn-primary btn-sm" onClick={() => setShowModal(true)}>+ Add Debt</button>
       </div>
 
       <div className="stat-grid fade-up fade-up-1" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
         <div className="stat-card blue">
-          <div className="stat-label">{LABELS.gave} (Baki)</div>
-          <div className="stat-value" style={{ color: 'var(--blue)' }}>₹{fmt(pendingGave)}</div>
-          <div className="stat-sub">Milva nu baki</div>
+          <div className="stat-label">{LABELS.gave} (Pending)</div>
+          <div className="stat-value" style={{ color: 'var(--blue)' }}>{currency}{fmt(pendingGave)}</div>
+          <div className="stat-sub">Receivable</div>
         </div>
         <div className="stat-card yellow">
-          <div className="stat-label">{LABELS.got} (Baki)</div>
-          <div className="stat-value" style={{ color: 'var(--yellow)' }}>₹{fmt(pendingGot)}</div>
-          <div className="stat-sub">Aapva nu baki</div>
+          <div className="stat-label">{LABELS.got} (Pending)</div>
+          <div className="stat-value" style={{ color: 'var(--yellow)' }}>{currency}{fmt(pendingGot)}</div>
+          <div className="stat-sub">Payable</div>
         </div>
         <div className={`stat-card ${pendingGave - pendingGot >= 0 ? 'green' : 'red'}`}>
           <div className="stat-label">Net</div>
           <div className="stat-value" style={{ color: pendingGave - pendingGot >= 0 ? 'var(--green)' : 'var(--red)' }}>
-            ₹{fmt(Math.abs(pendingGave - pendingGot))}
+            {currency}{fmt(Math.abs(pendingGave - pendingGot))}
           </div>
-          <div className="stat-sub">{pendingGave >= pendingGot ? 'Tamara favour ma' : 'Tame vahu aapva na cho'}</div>
+          <div className="stat-sub">{pendingGave >= pendingGot ? 'In your favor' : 'You owe more'}</div>
         </div>
       </div>
 
@@ -166,13 +168,13 @@ export default function Udhar() {
                       {u.description && <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: 2 }}>{u.description}</div>}
                     </td>
                     <td style={{ textAlign: 'right' }}>
-                      <span className="amount" style={{ fontWeight: 500 }}>₹{fmt(u.amount)}</span>
+                      <span className="amount" style={{ fontWeight: 500 }}>{currency}{fmt(u.amount)}</span>
                     </td>
                     <td style={{ textAlign: 'right' }}>
-                      <span className="amount" style={{ color: 'var(--green)', fontWeight: 500 }}>₹{fmt(u.paid_amount || 0)}</span>
+                      <span className="amount" style={{ color: 'var(--green)', fontWeight: 500 }}>{currency}{fmt(u.paid_amount || 0)}</span>
                     </td>
                     <td>
-                      <span className="amount" style={{ color: 'var(--red)', fontWeight: 500 }}>₹{fmt(u.amount - (u.paid_amount || 0))}</span>
+                      <span className="amount" style={{ color: 'var(--red)', fontWeight: 500 }}>{currency}{fmt(u.amount - (u.paid_amount || 0))}</span>
                       {progressBar(u)}
                     </td>
                     <td>
@@ -199,7 +201,7 @@ export default function Udhar() {
         ) : (
           <div className="empty">
             <div className="empty-icon">🤝</div>
-            No udhar entries found.
+            No debt entries found.
           </div>
         )}
       </div>

@@ -25,7 +25,7 @@ export default function Register() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-logo">₹ PEM</div>
+        <div className="auth-logo">Zevonix</div>
         <div className="auth-tagline">Create your free account</div>
 
         <form onSubmit={handle}>

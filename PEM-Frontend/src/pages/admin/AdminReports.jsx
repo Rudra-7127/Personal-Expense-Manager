@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import api from '../../lib/api'
 import { fmt, fmtDate, LABELS } from '../../lib/utils'
+import { useTheme } from '../../context/ThemeContext'
 import toast from 'react-hot-toast'
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
@@ -66,20 +67,21 @@ export default function AdminReports() {
 }
 
 function MonthlyView({ data }) {
+  const { currency } = useTheme()
   return (
     <div>
       <div style={{fontFamily:"'Baloo 2'",fontSize:'1.2rem',fontWeight:800,marginBottom:16,color:'var(--muted)'}}>
         {data.month_name} {data.year}
       </div>
       <div className="stat-grid" style={{marginBottom:24}}>
-        <div className="stat-card"><div className="stat-label">Opening Balance</div><div className="stat-value" style={{color:data.opening_balance>=0?'var(--green)':'var(--red)'}}>₹{fmt(Math.abs(data.opening_balance))}</div><div className="stat-sub">Carried from last month</div></div>
-        <div className="stat-card"><div className="stat-label">+ {LABELS.income}</div><div className="stat-value" style={{color:'var(--green)'}}>₹{fmt(data.aavak)}</div></div>
-        <div className="stat-card"><div className="stat-label">− {LABELS.expense}</div><div className="stat-value" style={{color:'var(--red)'}}>₹{fmt(data.javak)}</div></div>
-        <div className="stat-card" style={{border:'1.5px solid var(--accent)'}}><div className="stat-label">Closing Balance</div><div className="stat-value" style={{color:data.closing_balance>=0?'var(--green)':'var(--red)'}}>₹{fmt(Math.abs(data.closing_balance))}</div><div className="stat-sub">Carries to next month</div></div>
+        <div className="stat-card"><div className="stat-label">Opening Balance</div><div className="stat-value" style={{color:data.opening_balance>=0?'var(--green)':'var(--red)'}}>{currency}{fmt(Math.abs(data.opening_balance))}</div><div className="stat-sub">Carried from last month</div></div>
+        <div className="stat-card"><div className="stat-label">+ {LABELS.income}</div><div className="stat-value" style={{color:'var(--green)'}}>{currency}{fmt(data.aavak)}</div></div>
+        <div className="stat-card"><div className="stat-label">− {LABELS.expense}</div><div className="stat-value" style={{color:'var(--red)'}}>{currency}{fmt(data.javak)}</div></div>
+        <div className="stat-card" style={{border:'1.5px solid var(--accent)'}}><div className="stat-label">Closing Balance</div><div className="stat-value" style={{color:data.closing_balance>=0?'var(--green)':'var(--red)'}}>{currency}{fmt(Math.abs(data.closing_balance))}</div><div className="stat-sub">Carries to next month</div></div>
       </div>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:24}}>
-        <div className="stat-card"><div className="stat-label">{LABELS.gave} Pending</div><div className="stat-value" style={{color:'var(--blue)'}}>₹{fmt(data.udhar_gave_pending)}</div></div>
-        <div className="stat-card"><div className="stat-label">{LABELS.got} Pending</div><div className="stat-value" style={{color:'var(--yellow)'}}>₹{fmt(data.udhar_got_pending)}</div></div>
+        <div className="stat-card"><div className="stat-label">{LABELS.gave} Pending</div><div className="stat-value" style={{color:'var(--blue)'}}>{currency}{fmt(data.udhar_gave_pending)}</div></div>
+        <div className="stat-card"><div className="stat-label">{LABELS.got} Pending</div><div className="stat-value" style={{color:'var(--yellow)'}}>{currency}{fmt(data.udhar_got_pending)}</div></div>
       </div>
       <div className="card" style={{marginBottom:16}}>
         <div className="card-header"><div className="card-title">Entries this month ({data.entries.length})</div></div>
@@ -89,58 +91,59 @@ function MonthlyView({ data }) {
             <td><span className={`chip chip-${e.type}`}>{e.type==='income'?LABELS.income:LABELS.expense}</span></td>
             <td>{e.description}</td>
             <td style={{color:'var(--muted)',fontSize:'.8rem'}}>{e.category}</td>
-            <td style={{color:e.type==='expense'?'var(--red)':'var(--green)',fontWeight:700}}>₹{fmt(e.amount)}</td>
+            <td style={{color:e.type==='expense'?'var(--red)':'var(--green)',fontWeight:700}}>{currency}{fmt(e.amount)}</td>
           </tr>)}
         </tbody></table> : <div className="empty">No entries this month</div>}
       </div>
       <div className="card">
-        <div className="card-header"><div className="card-title">Udhar this month ({data.udhar_this_month.length})</div></div>
+        <div className="card-header"><div className="card-title">Debts this month ({data.udhar_this_month.length})</div></div>
         {data.udhar_this_month.length ? <table><thead><tr><th>Date</th><th>Type</th><th>Person</th><th>Total</th><th>Paid</th><th>Remaining</th><th>Status</th></tr></thead><tbody>
           {data.udhar_this_month.map(u=><tr key={u.id}>
             <td>{fmtDate(u.date)}</td>
             <td><span className={`chip chip-${u.type}`}>{u.type==='gave'?LABELS.gave:LABELS.got}</span></td>
             <td style={{fontWeight:700}}>{u.person_name}</td>
-            <td>₹{fmt(u.amount)}</td>
-            <td style={{color:'var(--green)',fontWeight:700}}>₹{fmt(u.paid_amount||0)}</td>
-            <td style={{color:'var(--red)',fontWeight:700}}>₹{fmt(u.amount-(u.paid_amount||0))}</td>
+            <td>{currency}{fmt(u.amount)}</td>
+            <td style={{color:'var(--green)',fontWeight:700}}>{currency}{fmt(u.paid_amount||0)}</td>
+            <td style={{color:'var(--red)',fontWeight:700}}>{currency}{fmt(u.amount-(u.paid_amount||0))}</td>
             <td><span className={`chip chip-${u.status}`}>{u.status}</span></td>
           </tr>)}
-        </tbody></table> : <div className="empty">No udhar this month</div>}
+        </tbody></table> : <div className="empty">No debt entries this month</div>}
       </div>
     </div>
   )
 }
 
 function YearlyView({ data }) {
+  const { currency } = useTheme()
   return (
     <div>
       <div style={{fontFamily:"'Baloo 2'",fontSize:'1.2rem',fontWeight:800,marginBottom:16,color:'var(--muted)'}}>Year {data.year} Summary</div>
       <div className="stat-grid" style={{marginBottom:24}}>
-        <div className="stat-card"><div className="stat-label">Opening Balance</div><div className="stat-value" style={{color:data.opening_balance>=0?'var(--green)':'var(--red)'}}>₹{fmt(Math.abs(data.opening_balance))}</div><div className="stat-sub">Start of {data.year}</div></div>
-        <div className="stat-card"><div className="stat-label">Total {LABELS.income}</div><div className="stat-value" style={{color:'var(--green)'}}>₹{fmt(data.total_aavak)}</div></div>
-        <div className="stat-card"><div className="stat-label">Total {LABELS.expense}</div><div className="stat-value" style={{color:'var(--red)'}}>₹{fmt(data.total_javak)}</div></div>
-        <div className="stat-card" style={{border:'1.5px solid var(--accent)'}}><div className="stat-label">Closing Balance</div><div className="stat-value" style={{color:data.closing_balance>=0?'var(--green)':'var(--red)'}}>₹{fmt(Math.abs(data.closing_balance))}</div><div className="stat-sub">End of {data.year}</div></div>
+        <div className="stat-card"><div className="stat-label">Opening Balance</div><div className="stat-value" style={{color:data.opening_balance>=0?'var(--green)':'var(--red)'}}>{currency}{fmt(Math.abs(data.opening_balance))}</div><div className="stat-sub">Start of {data.year}</div></div>
+        <div className="stat-card"><div className="stat-label">Total {LABELS.income}</div><div className="stat-value" style={{color:'var(--green)'}}>{currency}{fmt(data.total_aavak)}</div></div>
+        <div className="stat-card"><div className="stat-label">Total {LABELS.expense}</div><div className="stat-value" style={{color:'var(--red)'}}>{currency}{fmt(data.total_javak)}</div></div>
+        <div className="stat-card" style={{border:'1.5px solid var(--accent)'}}><div className="stat-label">Closing Balance</div><div className="stat-value" style={{color:data.closing_balance>=0?'var(--green)':'var(--red)'}}>{currency}{fmt(Math.abs(data.closing_balance))}</div><div className="stat-sub">End of {data.year}</div></div>
       </div>
       <div className="card">
         <div className="card-header"><div className="card-title">Month by Month</div></div>
-        <table><thead><tr><th>Month</th><th>Opening</th><th>{LABELS.income}</th><th>{LABELS.expense}</th><th>Closing</th><th>Udhar Gave</th><th>Udhar Got</th></tr></thead>
+        <table><thead><tr><th>Month</th><th>Opening</th><th>{LABELS.income}</th><th>{LABELS.expense}</th><th>Closing</th><th>Lent</th><th>Borrowed</th></tr></thead>
         <tbody>
           {data.months.map(m=>(
             <tr key={m.month} style={{opacity:m.aavak===0&&m.javak===0?0.4:1}}>
               <td style={{fontWeight:700}}>{m.month_name}</td>
-              <td style={{color:m.opening_balance>=0?'var(--green)':'var(--red)'}}>₹{fmt(Math.abs(m.opening_balance))}</td>
-              <td style={{color:'var(--green)',fontWeight:700}}>₹{fmt(m.aavak)}</td>
-              <td style={{color:'var(--red)',fontWeight:700}}>₹{fmt(m.javak)}</td>
-              <td style={{color:m.closing_balance>=0?'var(--green)':'var(--red)',fontWeight:700}}>₹{fmt(Math.abs(m.closing_balance))}</td>
-              <td style={{color:'var(--blue)'}}>₹{fmt(m.udhar_gave_pending)}</td>
-              <td style={{color:'var(--yellow)'}}>₹{fmt(m.udhar_got_pending)}</td>
+              <td style={{color:m.opening_balance>=0?'var(--green)':'var(--red)'}}>{currency}{fmt(Math.abs(m.opening_balance))}</td>
+              <td style={{color:'var(--green)',fontWeight:700}}>{currency}{fmt(m.aavak)}</td>
+              <td style={{color:'var(--red)',fontWeight:700}}>{currency}{fmt(m.javak)}</td>
+              <td style={{color:m.closing_balance>=0?'var(--green)':'var(--red)',fontWeight:700}}>{currency}{fmt(Math.abs(m.closing_balance))}</td>
+              <td style={{color:'var(--blue)'}}>{currency}{fmt(m.udhar_gave_pending)}</td>
+              <td style={{color:'var(--yellow)'}}>{currency}{fmt(m.udhar_got_pending)}</td>
             </tr>
           ))}
           <tr style={{borderTop:'2px solid var(--border)',fontWeight:800,background:'var(--surface2)'}}>
             <td>Total</td><td>-</td>
-            <td style={{color:'var(--green)'}}>₹{fmt(data.total_aavak)}</td>
-            <td style={{color:'var(--red)'}}>₹{fmt(data.total_javak)}</td>
-            <td style={{color:data.net>=0?'var(--green)':'var(--red)'}}>₹{fmt(Math.abs(data.net))}</td>
+            <td style={{color:'var(--green)'}}>{currency}{fmt(data.total_aavak)}</td>
+            <td style={{color:'var(--red)'}}>{currency}{fmt(data.total_javak)}</td>
+            <td style={{color:data.net>=0?'var(--green)':'var(--red)'}}>{currency}{fmt(Math.abs(data.net))}</td>
             <td>-</td><td>-</td>
           </tr>
         </tbody></table>
