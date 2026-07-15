@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import api from '../lib/api'
 import { fmt, fmtDate, LABELS } from '../lib/utils'
+import { useTheme } from '../context/ThemeContext'
 import { exportExcel } from '../lib/exportExcel'
 import toast from 'react-hot-toast'
 
@@ -94,6 +95,7 @@ export default function Reports() {
 }
 
 function MonthlyView({ data }) {
+  const { currency } = useTheme()
   return (
     <div>
       <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', fontWeight: 700, marginBottom: 20, color: 'var(--muted)', letterSpacing: '-0.02em' }}>
@@ -104,22 +106,22 @@ function MonthlyView({ data }) {
         <div className={`stat-card ${data.opening_balance >= 0 ? 'green' : 'red'}`}>
           <div className="stat-label">Opening Balance</div>
           <div className="stat-value" style={{ color: data.opening_balance >= 0 ? 'var(--green)' : 'var(--red)' }}>
-            ₹{fmt(Math.abs(data.opening_balance))}
+            {currency}{fmt(Math.abs(data.opening_balance))}
           </div>
           <div className="stat-sub">Carried from last month</div>
         </div>
         <div className="stat-card green">
           <div className="stat-label">+ {LABELS.income}</div>
-          <div className="stat-value" style={{ color: 'var(--green)' }}>₹{fmt(data.aavak)}</div>
+          <div className="stat-value" style={{ color: 'var(--green)' }}>{currency}{fmt(data.aavak)}</div>
         </div>
         <div className="stat-card red">
           <div className="stat-label">− {LABELS.expense}</div>
-          <div className="stat-value" style={{ color: 'var(--red)' }}>₹{fmt(data.javak)}</div>
+          <div className="stat-value" style={{ color: 'var(--red)' }}>{currency}{fmt(data.javak)}</div>
         </div>
         <div className={`stat-card accent ${data.closing_balance >= 0 ? 'green' : 'red'}`}>
           <div className="stat-label">Closing Balance</div>
           <div className="stat-value" style={{ color: data.closing_balance >= 0 ? 'var(--green)' : 'var(--red)' }}>
-            ₹{fmt(Math.abs(data.closing_balance))}
+            {currency}{fmt(Math.abs(data.closing_balance))}
           </div>
           <div className="stat-sub">Carries to next month</div>
         </div>
@@ -128,13 +130,13 @@ function MonthlyView({ data }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 24 }}>
         <div className="stat-card blue fade-up fade-up-1">
           <div className="stat-label">{LABELS.gave} Pending</div>
-          <div className="stat-value" style={{ color: 'var(--blue)' }}>₹{fmt(data.udhar_gave_pending)}</div>
-          <div className="stat-sub">Milva nu baki</div>
+          <div className="stat-value" style={{ color: 'var(--blue)' }}>{currency}{fmt(data.udhar_gave_pending)}</div>
+          <div className="stat-sub">Receivable</div>
         </div>
         <div className="stat-card yellow fade-up fade-up-1">
           <div className="stat-label">{LABELS.got} Pending</div>
-          <div className="stat-value" style={{ color: 'var(--yellow)' }}>₹{fmt(data.udhar_got_pending)}</div>
-          <div className="stat-sub">Aapva nu baki</div>
+          <div className="stat-value" style={{ color: 'var(--yellow)' }}>{currency}{fmt(data.udhar_got_pending)}</div>
+          <div className="stat-sub">Payable</div>
         </div>
       </div>
 
@@ -159,7 +161,7 @@ function MonthlyView({ data }) {
                   <td style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>{e.category}</td>
                   <td style={{ textAlign: 'right' }}>
                     <span className="amount" style={{ color: e.type === 'expense' ? 'var(--red)' : 'var(--green)', fontWeight: 500 }}>
-                      {e.type === 'expense' ? '−' : '+'}₹{fmt(e.amount)}
+                      {e.type === 'expense' ? '−' : '+'}{currency}{fmt(e.amount)}
                     </span>
                   </td>
                 </tr>
@@ -171,7 +173,7 @@ function MonthlyView({ data }) {
 
       <div className="card fade-up fade-up-3">
         <div className="card-header">
-          <div className="card-title">Udhar this month ({data.udhar_this_month.length})</div>
+          <div className="card-title">Debts this month ({data.udhar_this_month.length})</div>
         </div>
         {data.udhar_this_month.length ? (
           <table>
@@ -184,21 +186,22 @@ function MonthlyView({ data }) {
                   <td style={{ color: 'var(--muted)', fontFamily: 'var(--font-mono)', fontSize: '0.78rem' }}>{fmtDate(u.date)}</td>
                   <td><span className={`chip chip-${u.type}`}>{u.type === 'gave' ? LABELS.gave : LABELS.got}</span></td>
                   <td style={{ fontWeight: 600 }}>{u.person_name}</td>
-                  <td><span className="amount">₹{fmt(u.amount)}</span></td>
-                  <td><span className="amount" style={{ color: 'var(--green)' }}>₹{fmt(u.paid_amount || 0)}</span></td>
-                  <td><span className="amount" style={{ color: 'var(--red)' }}>₹{fmt(u.amount - (u.paid_amount || 0))}</span></td>
+                  <td><span className="amount">{currency}{fmt(u.amount)}</span></td>
+                  <td><span className="amount" style={{ color: 'var(--green)' }}>{currency}{fmt(u.paid_amount || 0)}</span></td>
+                  <td><span className="amount" style={{ color: 'var(--red)' }}>{currency}{fmt(u.amount - (u.paid_amount || 0))}</span></td>
                   <td><span className={`chip chip-${u.status}`}>{u.status}</span></td>
                 </tr>
               ))}
             </tbody>
           </table>
-        ) : <div className="empty"><div className="empty-icon">🤝</div>No udhar entries this month</div>}
+        ) : <div className="empty"><div className="empty-icon">🤝</div>No debt entries this month</div>}
       </div>
     </div>
   )
 }
 
 function YearlyView({ data }) {
+  const { currency } = useTheme()
   return (
     <div>
       <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', fontWeight: 700, marginBottom: 20, color: 'var(--muted)', letterSpacing: '-0.02em' }}>
@@ -209,22 +212,22 @@ function YearlyView({ data }) {
         <div className={`stat-card ${data.opening_balance >= 0 ? 'green' : 'red'}`}>
           <div className="stat-label">Opening Balance</div>
           <div className="stat-value" style={{ color: data.opening_balance >= 0 ? 'var(--green)' : 'var(--red)' }}>
-            ₹{fmt(Math.abs(data.opening_balance))}
+            {currency}{fmt(Math.abs(data.opening_balance))}
           </div>
           <div className="stat-sub">Start of {data.year}</div>
         </div>
         <div className="stat-card green">
           <div className="stat-label">Total {LABELS.income}</div>
-          <div className="stat-value" style={{ color: 'var(--green)' }}>₹{fmt(data.total_aavak)}</div>
+          <div className="stat-value" style={{ color: 'var(--green)' }}>{currency}{fmt(data.total_aavak)}</div>
         </div>
         <div className="stat-card red">
           <div className="stat-label">Total {LABELS.expense}</div>
-          <div className="stat-value" style={{ color: 'var(--red)' }}>₹{fmt(data.total_javak)}</div>
+          <div className="stat-value" style={{ color: 'var(--red)' }}>{currency}{fmt(data.total_javak)}</div>
         </div>
         <div className={`stat-card accent ${data.closing_balance >= 0 ? 'green' : 'red'}`}>
           <div className="stat-label">Closing Balance</div>
           <div className="stat-value" style={{ color: data.closing_balance >= 0 ? 'var(--green)' : 'var(--red)' }}>
-            ₹{fmt(Math.abs(data.closing_balance))}
+            {currency}{fmt(Math.abs(data.closing_balance))}
           </div>
           <div className="stat-sub">End of {data.year}</div>
         </div>
@@ -242,28 +245,28 @@ function YearlyView({ data }) {
               <th>{LABELS.income}</th>
               <th>{LABELS.expense}</th>
               <th>Closing</th>
-              <th>Udhar Gave</th>
-              <th>Udhar Got</th>
+              <th>Lent</th>
+              <th>Borrowed</th>
             </tr>
           </thead>
           <tbody>
             {(data.months || []).map(m => (
               <tr key={m.month} style={{ opacity: m.aavak === 0 && m.javak === 0 ? 0.38 : 1 }}>
                 <td style={{ fontWeight: 700, fontFamily: 'var(--font-display)' }}>{m.month_name}</td>
-                <td><span className="amount" style={{ color: m.opening_balance >= 0 ? 'var(--green)' : 'var(--red)' }}>₹{fmt(Math.abs(m.opening_balance))}</span></td>
-                <td><span className="amount" style={{ color: 'var(--green)', fontWeight: 500 }}>₹{fmt(m.aavak)}</span></td>
-                <td><span className="amount" style={{ color: 'var(--red)', fontWeight: 500 }}>₹{fmt(m.javak)}</span></td>
-                <td><span className="amount" style={{ color: m.closing_balance >= 0 ? 'var(--green)' : 'var(--red)', fontWeight: 600 }}>₹{fmt(Math.abs(m.closing_balance))}</span></td>
-                <td><span className="amount" style={{ color: 'var(--blue)' }}>₹{fmt(m.udhar_gave_pending)}</span></td>
-                <td><span className="amount" style={{ color: 'var(--yellow)' }}>₹{fmt(m.udhar_got_pending)}</span></td>
+                <td><span className="amount" style={{ color: m.opening_balance >= 0 ? 'var(--green)' : 'var(--red)' }}>{currency}{fmt(Math.abs(m.opening_balance))}</span></td>
+                <td><span className="amount" style={{ color: 'var(--green)', fontWeight: 500 }}>{currency}{fmt(m.aavak)}</span></td>
+                <td><span className="amount" style={{ color: 'var(--red)', fontWeight: 500 }}>{currency}{fmt(m.javak)}</span></td>
+                <td><span className="amount" style={{ color: m.closing_balance >= 0 ? 'var(--green)' : 'var(--red)', fontWeight: 600 }}>{currency}{fmt(Math.abs(m.closing_balance))}</span></td>
+                <td><span className="amount" style={{ color: 'var(--blue)' }}>{currency}{fmt(m.udhar_gave_pending)}</span></td>
+                <td><span className="amount" style={{ color: 'var(--yellow)' }}>{currency}{fmt(m.udhar_got_pending)}</span></td>
               </tr>
             ))}
-            <tr style={{ borderTop: '2px solid var(--border)', background: '#f9731608', fontWeight: 700 }}>
+            <tr style={{ borderTop: '2px solid var(--border)', background: 'var(--surface2)', fontWeight: 700 }}>
               <td style={{ fontFamily: 'var(--font-display)', fontWeight: 800 }}>Total</td>
               <td><span className="amount" style={{ color: 'var(--muted)' }}>—</span></td>
-              <td><span className="amount" style={{ color: 'var(--green)' }}>₹{fmt(data.total_aavak)}</span></td>
-              <td><span className="amount" style={{ color: 'var(--red)' }}>₹{fmt(data.total_javak)}</span></td>
-              <td><span className="amount" style={{ color: data.net >= 0 ? 'var(--green)' : 'var(--red)' }}>₹{fmt(Math.abs(data.net))}</span></td>
+              <td><span className="amount" style={{ color: 'var(--green)' }}>{currency}{fmt(data.total_aavak)}</span></td>
+              <td><span className="amount" style={{ color: 'var(--red)' }}>{currency}{fmt(data.total_javak)}</span></td>
+              <td><span className="amount" style={{ color: data.net >= 0 ? 'var(--green)' : 'var(--red)' }}>{currency}{fmt(Math.abs(data.net))}</span></td>
               <td><span className="amount" style={{ color: 'var(--muted)' }}>—</span></td>
               <td><span className="amount" style={{ color: 'var(--muted)' }}>—</span></td>
             </tr>

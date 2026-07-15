@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import api from '../lib/api'
 import { LABELS } from '../lib/utils'
+import { useTheme } from '../context/ThemeContext'
 import toast from 'react-hot-toast'
 
 
@@ -15,6 +16,7 @@ const INCOME_CATS  = ['Salary','Freelance','Business','Investment','Gift','Other
 
 
 export default function AddEntryModal({ type: defaultType = 'expense', entry = null, onClose, onSuccess }) {
+  const { currency } = useTheme()
   const isEdit = !!entry
   const [type, setType] = useState(isEdit ? entry.type : defaultType)
   const cats = type === 'income' ? INCOME_CATS : EXPENSE_CATS
@@ -85,7 +87,7 @@ export default function AddEntryModal({ type: defaultType = 'expense', entry = n
         </div>
 
         <div className="field">
-          <label>Amount (₹)</label>
+          <label>Amount ({currency})</label>
           <input type="number" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="0.00" min="1" />
         </div>
         <div className="field">

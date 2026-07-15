@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import api from '../lib/api'
 import { fmt } from '../lib/utils'
+import { useTheme } from '../context/ThemeContext'
 import toast from 'react-hot-toast'
 
 export default function PaymentModal({ udhar, onClose, onSuccess }) {
+  const { currency } = useTheme()
   const [payments, setPayments] = useState([])
   const [amount, setAmount] = useState('')
   const [date, setDate] = useState(new Date().toISOString().slice(0,10))
@@ -26,7 +28,7 @@ export default function PaymentModal({ udhar, onClose, onSuccess }) {
       const res = await api.post(`/udhar/${udhar.id}/payments/`, {
         amount: parseFloat(amount), date, notes
       })
-      toast.success(`₹${fmt(amount)} payment recorded!`)
+      toast.success(`${currency}${fmt(amount)} payment recorded!`)
       setAmount(''); setNotes('')
       loadPayments()
       onSuccess()
@@ -51,16 +53,16 @@ export default function PaymentModal({ udhar, onClose, onSuccess }) {
         <div className="modal-title">💳 Part Payment</div>
 
         <div style={{background:'var(--surface2)',borderRadius:12,padding:'14px 16px',marginBottom:20}}>
-          <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+          <div style={{display:'flex',justifyContent: 'space-between',marginBottom: 8}}>
             <span style={{fontWeight:700}}>{udhar.person_name}</span>
-            <span style={{color:udhar.type==='gave'?'var(--blue)':'var(--yellow)',fontWeight:800}}>₹{fmt(udhar.amount)}</span>
+            <span style={{color:udhar.type==='gave'?'var(--blue)':'var(--yellow)',fontWeight:800}}>{currency}{fmt(udhar.amount)}</span>
           </div>
           <div style={{display:'flex',justifyContent:'space-between',fontSize:'.82rem',color:'var(--muted)',marginBottom:10}}>
-            <span>Paid: <strong style={{color:'var(--green)'}}>₹{fmt(paidTotal)}</strong></span>
-            <span>Remaining: <strong style={{color:'var(--red)'}}>₹{fmt(udhar.amount - paidTotal)}</strong></span>
+            <span>Paid: <strong style={{color:'var(--green)'}}>{currency}{fmt(paidTotal)}</strong></span>
+            <span>Remaining: <strong style={{color:'var(--red)'}}>{currency}{fmt(udhar.amount - paidTotal)}</strong></span>
           </div>
           <div style={{background:'var(--border)',borderRadius:20,height:8,overflow:'hidden'}}>
-            <div style={{width:`${pct}%`,height:'100%',background:`linear-gradient(90deg, var(--green), #16a34a)`,borderRadius:20,transition:'width .4s'}}></div>
+            <div style={{width:`${pct}%`,height:'100%',background:`var(--green)`,borderRadius:20,transition:'width .4s'}}></div>
           </div>
           <div style={{textAlign:'right',fontSize:'.75rem',color:'var(--muted)',marginTop:4}}>{pct}% paid</div>
         </div>
@@ -70,8 +72,8 @@ export default function PaymentModal({ udhar, onClose, onSuccess }) {
             <div style={{fontWeight:700,marginBottom:12,fontSize:'.9rem'}}>Add Payment</div>
             <div style={{display:'flex',gap:10,marginBottom:10}}>
               <div className="field" style={{flex:1,margin:0}}>
-                <label>Amount (₹)</label>
-                <input type="number" value={amount} onChange={e=>setAmount(e.target.value)} placeholder={`Max ₹${fmt(udhar.amount - paidTotal)}`} max={udhar.amount - paidTotal} />
+                <label>Amount ({currency})</label>
+                <input type="number" value={amount} onChange={e=>setAmount(e.target.value)} placeholder={`Max ${currency}${fmt(udhar.amount - paidTotal)}`} max={udhar.amount - paidTotal} />
               </div>
               <div className="field" style={{flex:1,margin:0}}>
                 <label>Date</label>
@@ -94,7 +96,7 @@ export default function PaymentModal({ udhar, onClose, onSuccess }) {
             {payments.map(p=>(
               <div key={p.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',background:'var(--surface2)',borderRadius:10,padding:'10px 14px'}}>
                 <div>
-                  <div style={{fontWeight:700,color:'var(--green)'}}>₹{fmt(p.amount)}</div>
+                  <div style={{fontWeight:700,color:'var(--green)'}}>{currency}{fmt(p.amount)}</div>
                   <div style={{fontSize:'.78rem',color:'var(--muted)'}}>{p.date} {p.notes && `· ${p.notes}`}</div>
                 </div>
                 <button className="btn btn-danger btn-sm" onClick={()=>deletePayment(p.id)}>✕</button>

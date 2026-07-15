@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../lib/api'
 import { fmt, fmtDate } from '../../lib/utils'
+import { useTheme } from '../../context/ThemeContext'
 import toast from 'react-hot-toast'
 import { exportUserPDF } from '../../lib/exportPDF'
 const timeAgo = (dateStr) => {
@@ -15,6 +16,7 @@ const timeAgo = (dateStr) => {
 }
 
 export default function AdminDashboard() {
+  const { currency } = useTheme()
   const [data, setData]       = useState(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch]   = useState('')
@@ -192,7 +194,7 @@ export default function AdminDashboard() {
 
                   <td style={{ textAlign: 'right' }}>
                     <span className="amount" style={{ color: u.udhar_pending > 0 ? 'var(--yellow)' : 'var(--muted)' }}>
-                      {u.udhar_pending > 0 ? `₹${fmt(u.udhar_pending)}` : '—'}
+                      {u.udhar_pending > 0 ? `${currency}${fmt(u.udhar_pending)}` : '—'}
                     </span>
                   </td>
 

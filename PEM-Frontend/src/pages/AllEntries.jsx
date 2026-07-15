@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import api from '../lib/api'
 import { fmt, fmtDate, LABELS } from '../lib/utils'
+import { useTheme } from '../context/ThemeContext'
 import AddEntryModal from '../components/AddEntryModal'
 import AddUdharModal from '../components/AddUdharModal'
 import { exportExcel } from '../lib/exportExcel'
 import toast from 'react-hot-toast'
 
 export default function AllEntries() {
+  const { currency } = useTheme()
   const [entries, setEntries]         = useState([])
   const [udhar, setUdhar]             = useState([])
   const [showEntryModal, setShowEntryModal] = useState(false)
@@ -74,7 +76,7 @@ export default function AllEntries() {
       return (
         <td>
           <span className="amount" style={{ color: item.type === 'expense' ? 'var(--red)' : 'var(--green)', fontWeight: 500 }}>
-            {item.type === 'expense' ? '−' : '+'}₹{fmt(item.amount)}
+            {item.type === 'expense' ? '−' : '+'}{currency}{fmt(item.amount)}
           </span>
         </td>
       )
@@ -82,8 +84,8 @@ export default function AllEntries() {
     const remaining = item.amount - (item.paid_amount || 0)
     return (
       <td>
-        <div className="amount" style={{ color: item.type === 'gave' ? 'var(--blue)' : 'var(--yellow)', fontWeight: 500 }}>₹{fmt(item.amount)}</div>
-        {item.paid_amount > 0 && <div style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: 2 }}>Baki: ₹{fmt(remaining)}</div>}
+        <div className="amount" style={{ color: item.type === 'gave' ? 'var(--blue)' : 'var(--yellow)', fontWeight: 500 }}>{currency}{fmt(item.amount)}</div>
+        {item.paid_amount > 0 && <div style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: 2 }}>Remaining: {currency}{fmt(remaining)}</div>}
       </td>
     )
   }

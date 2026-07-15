@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import api from '../lib/api'
 import toast from 'react-hot-toast'
 
@@ -9,6 +10,7 @@ function getInitials(name = '') {
 
 export default function Profile() {
   const { user, refreshUser } = useAuth()
+  const { currency, setCurrency } = useTheme()
 
 
   const [name, setName]           = useState(user?.name || '')
@@ -204,6 +206,35 @@ export default function Profile() {
       </div>
 
       <div className="card fade-up fade-up-4" style={{ marginTop: 20 }}>
+        <div className="card-header">
+          <div className="card-title">💱 Currency Selection</div>
+        </div>
+        <div style={{ padding: '20px 28px' }}>
+          <div className="field" style={{ marginBottom: 0 }}>
+            <label htmlFor="currency-select" style={{ fontSize: '0.68rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>
+              Default Currency Symbol
+            </label>
+            <select
+              id="currency-select"
+              value={currency}
+              onChange={e => {
+                setCurrency(e.target.value)
+                toast.success(`Currency symbol updated to ${e.target.value}`)
+              }}
+              style={{ width: '100%', maxWidth: '200px' }}
+            >
+              <option value="$">USD ($)</option>
+              <option value="€">EUR (€)</option>
+              <option value="£">GBP (£)</option>
+              <option value="₹">INR (₹)</option>
+              <option value="¥">JPY (¥)</option>
+              <option value="₪">ILS (₪)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="card fade-up fade-up-5" style={{ marginTop: 20 }}>
         <div className="card-header">
           <div className="card-title">ℹ️ Account Info</div>
         </div>

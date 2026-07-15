@@ -8,14 +8,14 @@ const userNav = [
   { to: '/dashboard', icon: '▦', label: 'Dashboard' },
   { to: '/expenses', icon: '↓', label: LABELS.expense },
   { to: '/income', icon: '↑', label: LABELS.income },
-  { to: '/udhar', icon: '⇌', label: 'Udhar Book' },
+  { to: '/udhar', icon: '⇌', label: 'Debt Book' },
   { to: '/all-entries', icon: '☰', label: 'All Entries' },
   { to: '/reports', icon: '↗', label: 'Reports' },
 ]
 const adminNav = [
   { to: '/dashboard', icon: '▦', label: 'Dashboard' },
   { to: '/admin', icon: '◎', label: 'All Users' },
-  { to: '/udhar', icon: '⇌', label: 'Udhar Book' },
+  { to: '/udhar', icon: '⇌', label: 'Debt Book' },
   { to: '/all-entries', icon: '☰', label: 'All Entries' },
   { to: '/reports', icon: '↗', label: 'My Reports' },
 ]
@@ -39,8 +39,8 @@ export default function Layout() {
   return (
     <div className="layout-root">
       <aside className="sidebar">
-        <div className="sidebar-logo">
-          <img src="/logo.png" alt="PEM Logo" style={{ height: 40, width: 'auto', objectFit: 'contain' }} />
+        <div className="sidebar-logo" style={{ fontFamily: 'var(--font-display)', fontSize: '1.45rem', fontWeight: 800, color: 'var(--accent)', letterSpacing: '-0.03em', padding: '10px 12px 24px', borderBottom: '1px solid var(--border)', marginBottom: 12, display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+          Zevonix
         </div>
 
         <nav style={{ flex: 1 }}>

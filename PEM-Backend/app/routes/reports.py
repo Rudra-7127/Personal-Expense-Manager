@@ -60,9 +60,7 @@ def monthly_report(year: int = Query(...), month: int = Query(...), user=Depends
 @router.get("/yearly")
 def yearly_report(year: int = Query(...), user=Depends(get_current_user)):
     entries, udhar = get_user_data(user["id"])
-    months = []
-    for m in range(1, 13):
-        months.append(calc_monthly(entries, udhar, year, m))
+    months = [calc_monthly(entries, udhar, year, m) for m in range(1, 13)]
     total_aavak = sum(m["aavak"] for m in months)
     total_javak = sum(m["javak"] for m in months)
     return {
@@ -89,9 +87,7 @@ def admin_monthly(user_id: str, year: int = Query(...), month: int = Query(...),
 def admin_yearly(user_id: str, year: int = Query(...), _=Depends(require_admin)):
     entries, udhar = get_user_data(user_id)
     profile = supabase.table("profiles").select("name,email").eq("id", user_id).single().execute().data
-    months = []
-    for m in range(1, 13):
-        months.append(calc_monthly(entries, udhar, year, m))
+    months = [calc_monthly(entries, udhar, year, m) for m in range(1, 13)]
     total_aavak = sum(m["aavak"] for m in months)
     total_javak = sum(m["javak"] for m in months)
     return {
