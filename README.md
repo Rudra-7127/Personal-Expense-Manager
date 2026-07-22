@@ -317,10 +317,20 @@ This project is open-source and available under the [MIT License](LICENSE).
 
 <div align="center">
 
-Made by **[Rudra J Rabadiya](https://github.com/RudraRabadiya)**
+<br>
 
-[![Instagram](https://img.shields.io/badge/%40rudra.rabadiya.07-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/rudra.rabadiya.07/)
+# 👨‍💻 About the Developer
 
-© 2026 · All Rights Reserved
+<h2><em>Rudra Rabadiya</em></h2>
+
+
+
+[![Portfolio](https://img.shields.io/badge/🌐%20Portfolio-Visit%20My%20Site-2d6a4f?style=for-the-badge&logoColor=white&labelColor=1a3d2b)](https://rudrarabadiya.dpdns.org)
+&nbsp;
+[![GitHub](https://img.shields.io/badge/GitHub-RudraRabadiya-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/RudraRabadiya)
+
+<br>
+
+*© 2026 Rudra Rabadiya · All Rights Reserved*
 
 </div>
