@@ -7,7 +7,7 @@
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
-[![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](docker-compose.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
 **Created by [Rudra J Rabadiya](https://github.com/Rudra-7127)**
@@ -119,20 +119,17 @@ Personal Expense Manager/
     │   │   ├── auth.py                # Register, login, /me
     │   │   ├── entries.py             # Income & expense CRUD
     │   │   ├── udhar.py               # Udhar (lending/borrowing) CRUD
-    │   │   ├── payments.py            # Payment records
-    │   │   ├── reports.py             # Monthly & yearly reports
-    │   │   └── admin.py               # Admin-only endpoints
-    │   ├── models/                    # Pydantic schemas
-    │   ├── middleware/
-    │   │   └── auth_guard.py          # JWT guard & admin guard
-    │   ├── services/
-    │   │   └── supabase_client.py     # Supabase client singleton
-    │   └── utils/                     # Shared helpers
-    ├── supabase/
-    │   └── schema.sql                 # Full database schema
-    ├── requirements.txt
-    ├── Procfile                       # Render deployment config
-    └── runtime.txt                    # Python version pin
+├── ⚙️  PEM-Backend/                   # FastAPI backend
+│   ├── app/
+│   ├── supabase/
+│   │   └── schema.sql                 # Full database schema
+│   ├── Dockerfile                 # Dockerfile for FastAPI backend
+│   ├── .dockerignore
+│   ├── requirements.txt
+│   ├── Procfile                       # Render deployment config
+│   └── runtime.txt                    # Python version pin
+│
+└── 🐳 docker-compose.yml              # One-command full-stack container orchestration
 ```
 
 ---
@@ -159,6 +156,37 @@ cd Personal-Expense-Manager
 ```
 
 ---
+
+## 🐳 Quick Start with Docker (Recommended)
+
+Run the entire application (Frontend + Backend) with a single command using Docker Compose:
+
+1. **Configure Environment:**
+   Create `.env` in `PEM-Backend/`:
+   ```bash
+   cp PEM-Backend/.env.example PEM-Backend/.env
+   ```
+   Fill in your Supabase credentials in `PEM-Backend/.env`:
+   ```env
+   SUPABASE_URL=https://your-project.supabase.co
+   SUPABASE_SERVICE_KEY=your-service-role-key
+   SUPABASE_JWT_SECRET=your-jwt-secret
+   ALLOWED_ORIGINS=http://localhost:5173
+   ```
+
+2. **Launch Containers:**
+   ```bash
+   docker compose up --build
+   ```
+
+3. **Access Services:**
+   - 🌐 **Frontend UI:** `http://localhost:5173`
+   - ⚙️ **Backend API:** `http://localhost:8000`
+   - 📖 **Interactive Swagger Docs:** `http://localhost:8000/docs`
+
+---
+
+## 💻 Manual Local Development Setup
 
 ### Step 2 — Database Setup
 
