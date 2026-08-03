@@ -1,12 +1,14 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from app.models.user import RegisterRequest, LoginRequest, UpdateProfileRequest, UpdatePasswordRequest
 from app.services.supabase_client import supabase
 from app.middleware.auth_guard import get_current_user
+from app.main import limiter
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/register")
-def register(body: RegisterRequest):
+@limiter.limit("3/minute")
+def register(request: Request, body: RegisterRequest):
     try:
         res = supabase.auth.sign_up({
             "email": body.email,
@@ -16,11 +18,17 @@ def register(body: RegisterRequest):
         if res.user is None:
             raise HTTPException(400, "Registration failed. Email may already be in use.")
         return {"message": "Registered successfully.", "user_id": res.user.id}
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(400, str(e))
+        import logging
+        logging.getLogger("pem").warning("Registration error: %s", e)
+        raise HTTPException(400, "Registration failed. Please try again.")
+
 
 @router.post("/login")
-def login(body: LoginRequest):
+@limiter.limit("5/minute")
+def login(request: Request, body: LoginRequest):
     try:
         res = supabase.auth.sign_in_with_password({"email": body.email, "password": body.password})
     except Exception as e:
@@ -53,6 +61,21 @@ def update_profile(body: UpdateProfileRequest, user=Depends(get_current_user)):
 
 @router.patch("/password")
 def update_password(body: UpdatePasswordRequest, user=Depends(get_current_user)):
+    # Security: verify the current password before allowing any change.
+    # Without this, a stolen session token could be used to lock the real owner out.
+    from fastapi import HTTPException as _HTTPException
+    try:
+        verify = supabase.auth.sign_in_with_password({
+            "email": user["email"],
+            "password": body.current_password
+        })
+        if not verify.user:
+            raise HTTPException(401, "Current password is incorrect")
+    except _HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(401, "Current password is incorrect")
+
     try:
         supabase.auth.admin.update_user_by_id(
             user["id"],
@@ -61,3 +84,4 @@ def update_password(body: UpdatePasswordRequest, user=Depends(get_current_user))
         return {"message": "Password updated successfully"}
     except Exception as e:
         raise HTTPException(500, f"Password update failed: {str(e)}")
+
