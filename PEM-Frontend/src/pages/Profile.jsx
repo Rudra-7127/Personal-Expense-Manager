@@ -18,6 +18,7 @@ export default function Profile() {
 
 
   const [newPw, setNewPw]         = useState('')
+  const [currentPw, setCurrentPw] = useState('')
   const [confirmPw, setConfirmPw] = useState('')
   const [showPw, setShowPw]       = useState(false)
   const [savingPw, setSavingPw]   = useState(false)
@@ -40,13 +41,15 @@ export default function Profile() {
 
   const handleUpdatePassword = async (e) => {
     e.preventDefault()
+    if (!currentPw) return toast.error('Please enter your current password')
     if (!newPw) return toast.error('Please enter a new password')
     if (newPw.length < 6) return toast.error('Password must be at least 6 characters')
     if (newPw !== confirmPw) return toast.error('Passwords do not match')
     setSavingPw(true)
     try {
-      await api.patch('/auth/password', { new_password: newPw })
+      await api.patch('/auth/password', { current_password: currentPw, new_password: newPw })
       toast.success('Password updated! Please log in again if needed.')
+      setCurrentPw('')
       setNewPw('')
       setConfirmPw('')
     } catch (err) {
@@ -145,6 +148,17 @@ export default function Profile() {
             <div className="card-title">🔒 Change Password</div>
           </div>
           <form onSubmit={handleUpdatePassword} style={{ padding: '24px 28px' }}>
+            <div className="field">
+              <label htmlFor="current-password">Current Password</label>
+              <input
+                id="current-password"
+                type={showPw ? 'text' : 'password'}
+                value={currentPw}
+                onChange={e => setCurrentPw(e.target.value)}
+                placeholder="Your current password"
+                autoComplete="current-password"
+              />
+            </div>
             <div className="field">
               <label htmlFor="new-password">New Password</label>
               <div style={{ position: 'relative' }}>

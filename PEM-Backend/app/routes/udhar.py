@@ -6,6 +6,20 @@ from app.services.supabase_client import supabase
 
 router = APIRouter(prefix="/udhar", tags=["Udhar"])
 
+# Admin routes are declared FIRST so FastAPI matches them before the dynamic /{udhar_id} pattern.
+# If admin routes were declared after /{udhar_id}, requests like GET /udhar/admin/<user_id>
+# would be captured by the dynamic route (IDOR / path-collision vulnerability).
+@router.get("/admin/all/overview")
+def admin_all_udhar(_=Depends(require_admin)):
+    res = supabase.table("udhar").select("*, profiles(name, email)").order("date", desc=True).execute()
+    return res.data
+
+@router.get("/admin/{user_id}")
+def admin_get_user_udhar(user_id: str, _=Depends(require_admin)):
+    res = supabase.table("udhar").select("*").eq("user_id", user_id).order("date", desc=True).execute()
+    return res.data
+
+
 @router.get("/")
 def get_udhar(user=Depends(get_current_user)):
     res = supabase.table("udhar").select("*").eq("user_id", user["id"]).order("date", desc=True).execute()
@@ -28,9 +42,15 @@ def create_udhar(body: UdharCreate, user=Depends(get_current_user)):
 
 @router.put("/{udhar_id}")
 def update_udhar(udhar_id: str, body: UdharUpdate, user=Depends(get_current_user)):
-    existing = supabase.table("udhar").select("id").eq("id", udhar_id).eq("user_id", user["id"]).execute()
+    existing = supabase.table("udhar").select("id, paid_amount").eq("id", udhar_id).eq("user_id", user["id"]).execute()
     if not existing.data:
         raise HTTPException(404, "Udhar entry not found or not yours")
+
+    # Security: prevent reducing amount below already-paid amount.
+    # Without this, a user could set amount=1 after paying ₹500, auto-flipping status to 'paid'.
+    paid_amount = existing.data[0].get("paid_amount") or 0
+    if body.amount < paid_amount:
+        raise HTTPException(400, f"New amount ₹{body.amount} cannot be less than already paid ₹{paid_amount:.2f}")
 
     update_data = {k: v for k, v in body.model_dump().items() if v is not None}
     if "date" in update_data:
@@ -41,6 +61,7 @@ def update_udhar(udhar_id: str, body: UdharUpdate, user=Depends(get_current_user
         raise HTTPException(400, "No fields to update")
     res = supabase.table("udhar").update(update_data).eq("id", udhar_id).execute()
     return res.data[0]
+
 
 
 @router.patch("/{udhar_id}/mark-paid")
@@ -63,14 +84,3 @@ def delete_udhar(udhar_id: str, user=Depends(get_current_user)):
         raise HTTPException(404, "Udhar entry not found or not yours")
     supabase.table("udhar").delete().eq("id", udhar_id).execute()
     return {"message": "Deleted successfully"}
-
-
-@router.get("/admin/{user_id}")
-def admin_get_user_udhar(user_id: str, _=Depends(require_admin)):
-    res = supabase.table("udhar").select("*").eq("user_id", user_id).order("date", desc=True).execute()
-    return res.data
-
-@router.get("/admin/all/overview")
-def admin_all_udhar(_=Depends(require_admin)):
-    res = supabase.table("udhar").select("*, profiles(name, email)").order("date", desc=True).execute()
-    return res.data

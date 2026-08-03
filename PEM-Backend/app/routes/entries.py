@@ -5,6 +5,20 @@ from app.services.supabase_client import supabase
 
 router = APIRouter(prefix="/entries", tags=["Entries"])
 
+# Admin routes are declared FIRST so FastAPI matches them before the dynamic /{entry_id} pattern.
+# If admin routes were declared after /{entry_id}, requests like GET /entries/admin/<user_id>
+# would be captured by the dynamic route (IDOR / path-collision vulnerability).
+@router.get("/admin/all/summary")
+def admin_all_entries(_=Depends(require_admin)):
+    res = supabase.table("entries").select("*, profiles(name, email)").order("date", desc=True).execute()
+    return res.data
+
+@router.get("/admin/{user_id}")
+def admin_get_user_entries(user_id: str, _=Depends(require_admin)):
+    res = supabase.table("entries").select("*").eq("user_id", user_id).order("date", desc=True).execute()
+    return res.data
+
+
 @router.get("/")
 def get_entries(user=Depends(get_current_user)):
     res = supabase.table("entries").select("*").eq("user_id", user["id"]).order("date", desc=True).execute()
@@ -35,14 +49,3 @@ def delete_entry(entry_id: str, user=Depends(get_current_user)):
         raise HTTPException(404, "Entry not found or not yours")
     supabase.table("entries").delete().eq("id", entry_id).execute()
     return {"message": "Deleted successfully"}
-
-
-@router.get("/admin/{user_id}")
-def admin_get_user_entries(user_id: str, _=Depends(require_admin)):
-    res = supabase.table("entries").select("*").eq("user_id", user_id).order("date", desc=True).execute()
-    return res.data
-
-@router.get("/admin/all/summary")
-def admin_all_entries(_=Depends(require_admin)):
-    res = supabase.table("entries").select("*, profiles(name, email)").order("date", desc=True).execute()
-    return res.data
