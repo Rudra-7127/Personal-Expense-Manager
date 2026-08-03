@@ -159,7 +159,21 @@ cd Personal-Expense-Manager
 
 ## 🐳 Quick Start with Docker (Recommended)
 
-Run the entire application (Frontend + Backend) with a single command using Docker Compose:
+### Option A — Pull Pre-built Images from Docker Hub 🚀
+No need to build locally! Pull the official Docker Hub images directly:
+
+```bash
+# Pull images from Docker Hub
+docker pull rudrarabadiya/zevonix-backend:latest
+docker pull rudrarabadiya/zevonix-frontend:latest
+```
+
+- ⚙️ **Docker Hub Backend:** [rudrarabadiya/zevonix-backend](https://hub.docker.com/r/rudrarabadiya/zevonix-backend)
+- 🖥️ **Docker Hub Frontend:** [rudrarabadiya/zevonix-frontend](https://hub.docker.com/r/rudrarabadiya/zevonix-frontend)
+
+---
+
+### Option B — Build & Run Locally with Docker Compose
 
 1. **Configure Environment:**
    Create `.env` in `PEM-Backend/`:
@@ -185,6 +199,7 @@ Run the entire application (Frontend + Backend) with a single command using Dock
    - 📖 **Interactive Swagger Docs:** `http://localhost:8000/docs`
 
 ---
+
 
 ## 💻 Manual Local Development Setup
 
