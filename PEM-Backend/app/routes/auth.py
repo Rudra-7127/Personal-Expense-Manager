@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from app.models.user import RegisterRequest, LoginRequest, UpdateProfileRequest, UpdatePasswordRequest
 from app.services.supabase_client import supabase
 from app.middleware.auth_guard import get_current_user
-from app.main import limiter
+from app.limiter import limiter
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
