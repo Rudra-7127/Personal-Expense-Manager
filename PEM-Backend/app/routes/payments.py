@@ -58,6 +58,10 @@ def add_payment(udhar_id: str, body: PaymentCreate, user=Depends(get_current_use
 @router.delete("/{payment_id}")
 def delete_payment(udhar_id: str, payment_id: str, user=Depends(get_current_user)):
     udhar = get_udhar_or_404(udhar_id, user["id"])
-    supabase.table("udhar_payments").delete().eq("id", payment_id).execute()
+    # IDOR fix: verify payment_id actually belongs to this udhar_id before deleting
+    payment_check = supabase.table("udhar_payments").select("id").eq("id", payment_id).eq("udhar_id", udhar_id).execute()
+    if not payment_check.data:
+        raise HTTPException(404, "Payment not found or does not belong to this udhar")
+    supabase.table("udhar_payments").delete().eq("id", payment_id).eq("udhar_id", udhar_id).execute()
     paid_total, new_status = recalculate_status(udhar_id, udhar["amount"])
     return {"message": "Payment deleted", "paid_total": paid_total, "status": new_status}

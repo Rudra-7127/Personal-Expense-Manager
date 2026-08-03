@@ -18,11 +18,15 @@ begin
     new.id,
     coalesce(new.raw_user_meta_data->>'name', 'User'),
     new.email,
-    coalesce(new.raw_user_meta_data->>'role', 'user')
+    -- SECURITY: role is ALWAYS 'user' on signup.
+    -- Never trust raw_user_meta_data for role — a direct Supabase API call
+    -- could pass {"role":"admin"} and bypass FastAPI's register endpoint.
+    'user'
   );
   return new;
 end;
 $$ language plpgsql security definer;
+
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
